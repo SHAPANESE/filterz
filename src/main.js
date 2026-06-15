@@ -28,9 +28,26 @@ const controls = mountControls({
 
 async function openFile(file) {
   if (!file) return
-  const { source, width, height } = await loadImageFile(file)
-  if (!renderer) renderer = createRenderer(canvas)
-  renderer.setImage(source, width, height)
+  if (!file.type.startsWith('image/')) {
+    alert('Elegí un archivo de imagen.')
+    return
+  }
+  let loaded
+  try {
+    loaded = await loadImageFile(file)
+  } catch {
+    alert('No pude abrir esa imagen. Probá con otra.')
+    return
+  }
+  if (!renderer) {
+    try {
+      renderer = createRenderer(canvas)
+    } catch {
+      alert('Tu navegador no soporta WebGL, necesario para los filtros.')
+      return
+    }
+  }
+  renderer.setImage(loaded.source, loaded.width, loaded.height)
   canvas.hidden = false
   startEl.hidden = true
   editorEl.hidden = false
@@ -45,3 +62,15 @@ document.getElementById('download').onclick = async () => {
   if (!renderer) return
   await exportPhoto(renderer)
 }
+
+// Press-and-hold the photo to peek at the original.
+function showOriginal(on) {
+  if (!renderer) return
+  const saved = state.sliders.intensity
+  renderer.setParams({ ...state.getRenderParams(), intensity: on ? 0 : saved })
+  renderer.render()
+}
+canvas.addEventListener('pointerdown', () => showOriginal(true))
+canvas.addEventListener('pointerup', () => showOriginal(false))
+canvas.addEventListener('pointercancel', () => showOriginal(false))
+canvas.addEventListener('pointerleave', () => showOriginal(false))
