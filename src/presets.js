@@ -17,8 +17,10 @@ export const PRESETS = [
   },
   {
     id: 'nostalgico', name: 'Cálido nostálgico',
-    defaults: { intensity: 0.92, grain: 0.50, warmth: 0.40, fade: 0.45, vignette: 0.40, halation: 0.40 },
-    character: { shadowTint: [0.05, 0.02, -0.02], highlightTint: [0.04, 0.02, -0.03], contrast: 1.00, saturation: 1.00, rolloff: 0.40 },
+    // Aged/faded look: muted color + strong amber-sepia, distinct from the
+    // bright, saturated "Verano Kodak".
+    defaults: { intensity: 0.95, grain: 0.55, warmth: 0.58, fade: 0.55, vignette: 0.48, halation: 0.35 },
+    character: { shadowTint: [0.08, 0.03, -0.06], highlightTint: [0.07, 0.04, -0.07], contrast: 1.06, saturation: 0.78, rolloff: 0.42 },
   },
 ]
 
