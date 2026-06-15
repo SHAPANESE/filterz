@@ -3,6 +3,7 @@ import { createState } from './state.js'
 import { createRenderer } from './gl/renderer.js'
 import { loadImageFile } from './ui/load.js'
 import { mountControls } from './ui/controls.js'
+import { exportPhoto } from './ui/export.js'
 
 const startEl = document.getElementById('start')
 const editorEl = document.getElementById('editor')
@@ -39,3 +40,8 @@ async function openFile(file) {
 document.getElementById('pick-start').onclick = () => fileInput.click()
 document.getElementById('pick').onclick = () => fileInput.click()
 fileInput.onchange = () => openFile(fileInput.files[0])
+
+document.getElementById('download').onclick = async () => {
+  if (!renderer) return
+  await exportPhoto(renderer)
+}
