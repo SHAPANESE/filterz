@@ -112,26 +112,31 @@ float hash(vec2 p) {
 }
 
 void main() {
-  vec3 graded = texture2D(u_graded, v_uv).rgb;
-  vec3 glow = texture2D(u_halation, v_uv).rgb;
+  // Flip Y once at the final stage so the displayed (and exported) image is
+  // upright. The FBO ping-pong otherwise renders it inverted, and
+  // UNPACK_FLIP_Y_WEBGL is unreliable for ImageBitmap sources.
+  vec2 uv = vec2(v_uv.x, 1.0 - v_uv.y);
+
+  vec3 graded = texture2D(u_graded, uv).rgb;
+  vec3 glow = texture2D(u_halation, uv).rgb;
 
   // screen-blend the halation glow
   vec3 col = 1.0 - (1.0 - graded) * (1.0 - glow * u_halationAmt);
 
   // film grain, strongest in midtones
   float l = dot(col, LUMA);
-  float n = hash(v_uv * u_resolution + u_seed) - 0.5;
+  float n = hash(uv * u_resolution + u_seed) - 0.5;
   float midMask = 1.0 - abs(l - 0.5) * 2.0;
   col += n * u_grain * 0.18 * mix(0.5, 1.0, midMask);
 
   // vignette
-  float dist = length(v_uv - 0.5);
+  float dist = length(uv - 0.5);
   float vig = smoothstep(0.85, 0.25, dist * 1.4);
   col *= mix(1.0, vig, u_vignette);
 
   col = clamp(col, 0.0, 1.0);
 
   // intensity: blend original <-> processed
-  vec3 orig = texture2D(u_source, v_uv).rgb;
+  vec3 orig = texture2D(u_source, uv).rgb;
   gl_FragColor = vec4(mix(orig, col, u_intensity), 1.0);
 }`
